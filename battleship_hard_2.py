@@ -1,11 +1,15 @@
 import random as idekjnrise
+# Generate boards
+meret = 6
+pl1map = [["0" for x in range(meret)] for y in range(meret)]
+pl2map = [["0" for x in range(meret)] for y in range(meret)]
 
 
 # clear terminal and a normal screen for player change
 def change_player(name):
     input('End turn')
     print("\033[H\033[J")
-    input(name + '?')
+    input('\n\n\n\n\n        '+name + '? \n\n\n')
     print("\033[H\033[J")
 
 
@@ -96,7 +100,7 @@ def place(x, y, map, rotate, length, number):
 
 
 # ship placement for the player with all the fluff
-def lerak(length, map, number):
+def place_player(length, map, number):
     helyes = True
     rotate = False
     while helyes:
@@ -202,10 +206,10 @@ def itsahityarrharr(xy, arrayforstuff, map, direc):
 
 # Player place the 4 ship (ship number changeable here)
 def player_placement(pl_map):
-    pl1map = lerak(4, pl_map, 1)
-    pl1map = lerak(3, pl_map, 2)
-    pl1map = lerak(2, pl_map, 3)
-    pl1map = lerak(2, pl_map, 4)
+    pl1map = place_player(4, pl_map, 1)
+    pl1map = place_player(3, pl_map, 2)
+    pl1map = place_player(2, pl_map, 3)
+    pl1map = place_player(2, pl_map, 4)
     clear()
     print_out_Create(pl_map)
     return pl_map
@@ -276,13 +280,21 @@ def generate_hard_pattern():
     rand22 = ['030', '100', '140', '210', '250', '320', '430', '500', '540']
     rand1 = []
     rand2 = []
-    # Choose one of the 2
+    # Choose one of the 4
     if idekjnrise.randint(0, 1) == 1:
-        rand1 = rand11
-        rand2 = rand12
+        if idekjnrise.randint(0, 1) == 1:
+            rand1 = rand11
+            rand2 = rand12
+        else:
+            rand1 = rand12
+            rand2 = rand11
     else:
-        rand1 = rand21
-        rand2 = rand22
+        if idekjnrise.randint(0, 1) == 1:
+            rand1 = rand21
+            rand2 = rand22
+        else:
+            rand1 = rand22
+            rand2 = rand21
     # Ugly Calculations
     for i in range(100):
         randomnumber1 = idekjnrise.randint(0, len(rand1)-1)
@@ -303,111 +315,110 @@ def generate_hard_pattern():
     return crosshair
 
 
-# Generate boards
-meret = 6
-pl1map = [["0" for x in range(meret)] for y in range(meret)]
-pl2map = [["0" for x in range(meret)] for y in range(meret)]
+def main():
+    playmode, difficulty = playmode_and_difficulty()
 
-playmode, difficulty = playmode_and_difficulty()
+    pl1map = player_placement(pl1map)
+    if playmode in ['M', 'Multi']:
+        change_player('Player 2')
 
-pl1map = player_placement(pl1map)
-if playmode in ['M', 'Multi']:
-    change_player('Player 2')
+        pl2map = player_placement(pl2map)
 
-    pl2map = player_placement(pl2map)
+        change_player('Player 1')
 
-    change_player('Player 1')
+    game = True
+    while game and playmode in ['M', 'Multi']:
+        # First Player
+        pl2map = player_turn(pl1map, pl2map)
+        win = check_win(pl2map)
+        if win:
+            clear()
+            print("\n \n \n \n \n         Player 1 won \n \n \n \n \n")
+            break
+        # Secound player
+        change_player('Player 2')
+        pl1map = player_turn(pl2map, pl1map)
+        win = check_win(pl1map)
+        if win:
+            clear()
+            print("\n \n \n \n \n         Player 2 won \n \n \n \n \n")
+            break
 
-game = True
-while game and playmode in ['M', 'Multi']:
-    # First Player
-    pl2map = player_turn(pl1map, pl2map)
-    win = check_win(pl2map)
-    if win:
-        clear()
-        print("\n \n \n \n \n         Player 1 won \n \n \n \n \n")
-        break
-    # Secound player
-    change_player('Player 2')
-    pl1map = player_turn(pl2map, pl1map)
-    win = check_win(pl1map)
-    if win:
-        clear()
-        print("\n \n \n \n \n         Player 2 won \n \n \n \n \n")
-        break
+        change_player('Player 1')
 
-    change_player('Player 1')
+    # Computer ship generate part
+    if playmode in ['S', 'Solo']:
+        pl2map = ai_placement(pl2map, 4, 1)
+        pl2map = ai_placement(pl2map, 3, 2)
+        pl2map = ai_placement(pl2map, 2, 3)
+        pl2map = ai_placement(pl2map, 2, 4)
 
-# Computer ship generate part
-if playmode in ['S', 'Solo']:
-    pl2map = ai_placement(pl2map, 4, 1)
-    pl2map = ai_placement(pl2map, 3, 2)
-    pl2map = ai_placement(pl2map, 2, 3)
-    pl2map = ai_placement(pl2map, 2, 4)
-
-# Easy computer game part
-while game and difficulty in ['E', 'Easy']:
-    # Player Turn
-    pl2map = player_turn(pl1map, pl2map)
-    win = check_win(pl2map)
-    if win:
-        clear()
-        print("\n \n \n \n \n         Player 1 won \n \n \n \n \n")
-        break
-    # Easy Computer turn
-    helyes = True
-    while helyes:
-        x = idekjnrise.randint(0, 5)
-        y = idekjnrise.randint(0, 5)
-        helyes, pl1map = shoot(x, y, pl1map, False)
-
-    win = check_win(pl1map)
-    if win:
-        clear()
-        print("\n \n \n \n \n         Computer won \n \n \n \n \n")
-        break
-
-    clear()
-
-# Hard computer generate part
-if difficulty in ['H', 'Hard']:
-    crosshair = generate_hard_pattern()
-    mechiteration = 0
-    talalat = []
-
-# Hard computer game part
-while game and difficulty in ['H', 'Hard']:
-    # Player turn
-    pl2map = player_turn(pl1map, pl2map)
-    win = check_win(pl2map)
-    if win:
-        clear()
-        print("\n \n \n \n \n         Player 1 won \n \n \n \n \n")
-        break
-    # Hard computer turn
-    if len(talalat) == 0:
+    # Easy computer game part
+    while game and difficulty in ['E', 'Easy']:
+        # Player Turn
+        pl2map = player_turn(pl1map, pl2map)
+        win = check_win(pl2map)
+        if win:
+            clear()
+            print("\n \n \n \n \n         Player 1 won \n \n \n \n \n")
+            break
+        # Easy Computer turn
         helyes = True
         while helyes:
-            target = crosshair[mechiteration]
-            x = int(crosshair[mechiteration][0])
-            y = int(crosshair[mechiteration][1])
-            direction = crosshair[mechiteration][2]
+            x = idekjnrise.randint(0, 5)
+            y = idekjnrise.randint(0, 5)
             helyes, pl1map = shoot(x, y, pl1map, False)
-            if pl1map[y][x] in ['X']:
-                talalat = itsahityarrharr(target, talalat, pl1map, direction)
-            mechiteration += 1
-    else:
-        target = talalat[0]
-        x = int(talalat[0][1])
-        y = int(talalat[0][0])
-        direction = talalat[0][2]
-        shoot(y, x, pl1map, False)
-        if pl1map[x][y] in ['X']:
-            talalat = itsahityarrharr(target, talalat, pl1map, direction)
-        talalat.remove(target)
 
-    win = check_win(pl1map)
-    if win:
+        win = check_win(pl1map)
+        if win:
+            clear()
+            print("\n \n \n \n \n         Computer won \n \n \n \n \n")
+            break
+
         clear()
-        print("\n \n \n \n \n         Computer won \n \n \n \n \n")
-        break
+
+    # Hard computer generate part
+    if difficulty in ['H', 'Hard']:
+        crosshair = generate_hard_pattern()
+        mechiteration = 0
+        talalat = []
+
+    # Hard computer game part
+    while game and difficulty in ['H', 'Hard']:
+        # Player turn
+        pl2map = player_turn(pl1map, pl2map)
+        win = check_win(pl2map)
+        if win:
+            clear()
+            print("\n \n \n \n \n         Player 1 won \n \n \n \n \n")
+            break
+        # Hard computer turn
+        if len(talalat) == 0:
+            helyes = True
+            while helyes:
+                target = crosshair[mechiteration]
+                x = int(crosshair[mechiteration][0])
+                y = int(crosshair[mechiteration][1])
+                direction = crosshair[mechiteration][2]
+                helyes, pl1map = shoot(x, y, pl1map, False)
+                if pl1map[y][x] in ['X']:
+                    talalat = itsahityarrharr(target, talalat, pl1map, direction)
+                mechiteration += 1
+        else:
+            target = talalat[0]
+            x = int(talalat[0][1])
+            y = int(talalat[0][0])
+            direction = talalat[0][2]
+            shoot(y, x, pl1map, False)
+            if pl1map[x][y] in ['X']:
+                talalat = itsahityarrharr(target, talalat, pl1map, direction)
+            talalat.remove(target)
+
+        win = check_win(pl1map)
+        if win:
+            clear()
+            print("\n \n \n \n \n         Computer won \n \n \n \n \n")
+            break
+
+
+main()
