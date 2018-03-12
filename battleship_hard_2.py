@@ -29,9 +29,9 @@ def print_out(pl_map, enemy_map):
                 rajz += "'-', "
             else:
                 rajz += "'0', "
-        if enemy_map[i][5] == "X":
+        if enemy_map[i][size-1] == "X":
             rajz += "'X']"
-        elif enemy_map[i][5] == "-":
+        elif enemy_map[i][size-1] == "-":
             rajz += "'-']"
         else:
             rajz += "'0']"
@@ -158,7 +158,7 @@ def inputcheck(koord):
                 x = 8
             else:
                 x = 9
-            if str(y) in["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]:
+            if str(y) in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]:
                 y = int(y) - 1
             else:
                 x, y = 11, 11
@@ -169,14 +169,14 @@ def inputcheck(koord):
     else:
         x, y = 11, 11
         again = True
-    if x > size and y > size:
+    if x > size or y > size:
         again = True
     return x, y, again
 
 
 # check the coord is in the table and, if it"s a valid target for computer
 def isvalidkoord(x, y, map):
-    if x in [0, 1, 2, 3, 4, 5] and y in [0, 1, 2, 3, 4, 5]:
+    if x in range(size) and y in range(size):
         if (map[y][x] not in ["X", "-"]):
             return True
     return False
@@ -252,12 +252,13 @@ def check_win(enemy_map):
 
 # AI place randomly the ships
 def ai_placement(pl2map, ship_length, ship_number):
+    global size
     again = True
     while again:
         rotate = False
-        x = idekjnrise.randint(0, 5)
-        y = idekjnrise.randint(0, 5)
-        R = idekjnrise.randint(0, 1)
+        x = idekjnrise.randint(0, size-1)
+        y = idekjnrise.randint(0, size-1)
+        R = idekjnrise.randint(0, size-1)
         if R == 1:
             rotate = True
         again, pl2map = place(x, y, pl2map, rotate, ship_length, ship_number)
@@ -277,15 +278,32 @@ def player_turn(pl_map, enemy_map):
     return enemy_map
 
 
+# generate shooting positions
+def generate_hard_positions(x):
+    f = 0
+    s = x
+    wannebe_filled_up_array = []
+    while f < size:
+        if s < size:
+            s += 4
+            wannabe_filled_up_array.append(str(f)+str(s)+"0")
+        else:
+            x += 1
+            s = (x % 4)
+            f += 1
+            wannabe_filled_up_array.append(str(f)+str(s)+"0")
+    return wannabe_filled_up_array
+
+
 # generate the shooting pattern for hard ai
 def generate_hard_pattern():
     again = True
     mechiteration = 0
     # Declare and generate one of the 2 possible shoot pattern
-    rand11 = ["000", "040", "110", "150", "220", "330", "400", "440", "510", "550"]
-    rand12 = ["020", "130", "200", "240", "310", "350", "420", "530"]
-    rand21 = ["010", "050", "120", "230", "300", "340", "410", "450", "520"]
-    rand22 = ["030", "100", "140", "210", "250", "320", "430", "500", "540"]
+    rand11 = generate_hard_positions(0)
+    rand12 = generate_hard_positions(2)
+    rand21 = generate_hard_positions(1)
+    rand22 = generate_hard_positions(3)
     rand1 = []
     rand2 = []
     # Choose one of the 4
@@ -328,15 +346,19 @@ def size_input():
     global size
     again = True
     while again:
-        clear()
-        size = input("Map size(6 to 10): ")
-        if size < 10 and size > 6:
-            again = False
+        try:
+            clear()
+            size = int(input("Map size(6 to 10): "))
+            if size <= 10 and size >= 6:
+                again = False
+        except(ValueError):
+            clear()
+            again = True
 
 
 def main():
     global size
-    size_input
+    size_input()
     pl1map = [["0" for x in range(size)] for y in range(size)]
     pl2map = [["0" for x in range(size)] for y in range(size)]
 
@@ -389,8 +411,8 @@ def main():
         # Easy Computer turn
         again = True
         while again:
-            x = idekjnrise.randint(0, 5)
-            y = idekjnrise.randint(0, 5)
+            x = idekjnrise.randint(0, size-1)
+            y = idekjnrise.randint(0, size-1)
             again, pl1map = shoot(x, y, pl1map, False)
 
         win = check_win(pl1map)
