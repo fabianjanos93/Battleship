@@ -1,6 +1,6 @@
 import random as idekjnrise
 # Generate boards
-meret = 6
+size = 6
 
 
 # Clear Terminal
@@ -20,9 +20,9 @@ def change_player(name):
 def print_out(pl_map, enemy_map):
     print(" ", ["A", "B", "C", "D", "E", "F"], " " *
           20, " ", ["A", "B", "C", "D", "E", "F"])
-    for i in range(meret):
+    for i in range(size):
         rajz = str(i + 1) + " ["
-        for j in range(meret - 1):
+        for j in range(size - 1):
             if enemy_map[i][j] == "X":
                 rajz += "'X', "
             elif enemy_map[i][j] == "-":
@@ -41,16 +41,16 @@ def print_out(pl_map, enemy_map):
 # write out only your board, for the ship placements
 def print_out_Create(pl_map):
     print(" ", ["A", "B", "C", "D", "E", "F"])
-    for i in range(meret):
+    for i in range(size):
         print(i + 1, pl_map[i])
 
 
 # shoot to the x-y coordinates and return with the table and the boolean if it duable
 def shoot(x, y, map, player):
-    helyes = False
+    again = False
     target = map[y][x]
     if target == "X" or target == "-":
-        helyes = True
+        again = True
         if player:
             print("You shot here before!")
     target = map[y][x]
@@ -61,18 +61,18 @@ def shoot(x, y, map, player):
         if player:
             print("hit")
         out = True
-        for i in range(meret):
-            for j in range(meret):
+        for i in range(size):
+            for j in range(size):
                 if map[i][j] == target:
                     out = False
         if out and player:
             print("Out!")
-    return helyes, map
+    return again, map
 
 
 # ship placement
 def place(x, y, map, rotate, length, number):
-    helyes = False
+    again = False
     for i in range(length):
         if rotate:
             if int(y) + int(i) < len(map):
@@ -80,33 +80,33 @@ def place(x, y, map, rotate, length, number):
                     map[int(y) + int(i)][int(x)] = str(number)
                 else:
                     print("rossz elhelyezés")
-                    helyes = True
+                    again = True
             else:
                 print("rossz elhelyezés")
-                helyes = True
+                again = True
         else:
             if int(x) + int(i) < len(map):
                 if map[int(y)][int(x) + int(i)] == "0":
                     map[int(y)][int(x) + int(i)] = str(number)
                 else:
                     print("rossz elhelyezés")
-                    helyes = True
+                    again = True
             else:
                 print("rossz elhelyezés")
-                helyes = True
-    if helyes:
+                again = True
+    if again:
         for i in range(len(map)):
             for j in range(len(map)):
                 if map[i][j] == str(number):
                     map[i][j] = "0"
-    return helyes, map
+    return again, map
 
 
 # ship placement for the player with all the fluff
 def place_player(length, map, number):
-    helyes = True
+    again = True
     rotate = False
-    while helyes:
+    while again:
         print("\033[H\033[J")
         print("Where whould you like to place the " + str(length) + " length ship?")
         print("(set O point in the B-4 form)")
@@ -125,18 +125,19 @@ def place_player(length, map, number):
         if len(koord) == 1 and koord == "R":
             rotate = not rotate
         else:
-            x, y, helyes = inputcheck(koord)
-            if not helyes:
-                helyes, map = place(x, y, map, rotate, length, number)
+            x, y, again = inputcheck(koord)
+            if not again:
+                again, map = place(x, y, map, rotate, length, number)
     return map
 
 
 # transfer the input to workeable x and y coordinates
 def inputcheck(koord):
-    helyes = False
+    global size
+    again = False
     if len(koord) == 3 and "-" in koord:
         x, y = koord.split("-")
-        if x in ["A", "B", "C", "D", "E", "F"]:
+        if x in ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]:
             if x == "A":
                 x = 0
             elif x == "B":
@@ -147,21 +148,30 @@ def inputcheck(koord):
                 x = 3
             elif x == "E":
                 x = 4
-            else:
+            elif x == "F":
                 x = 5
-            if str(y) in["1", "2", "3", "4", "5", "6", ]:
+            elif x == "G":
+                x = 6
+            elif x == "H":
+                x = 7
+            elif x == "I":
+                x = 8
+            else:
+                x = 9
+            if str(y) in["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]:
                 y = int(y) - 1
             else:
-                x, y = 7, 7
-                helyes = True
+                x, y = 11, 11
+                again = True
         else:
-            x, y = 7, 7
-            helyes = True
+            x, y = 11, 11
+            again = True
     else:
-        x, y = 7, 7
-        helyes = True
-
-    return x, y, helyes
+        x, y = 11, 11
+        again = True
+    if x > size and y > size:
+        again = True
+    return x, y, again
 
 
 # check the coord is in the table and, if it"s a valid target for computer
@@ -233,8 +243,8 @@ def playmode_and_difficulty():
 # Check if player winned
 def check_win(enemy_map):
     win = True
-    for i in range(meret):
-        for j in range(meret):
+    for i in range(size):
+        for j in range(size):
             if not enemy_map[i][j] == "0" and not enemy_map[i][j] == "X" and not enemy_map[i][j] == "-":
                 win = False
     return win
@@ -242,34 +252,34 @@ def check_win(enemy_map):
 
 # AI place randomly the ships
 def ai_placement(pl2map, ship_length, ship_number):
-    helyes = True
-    while helyes:
+    again = True
+    while again:
         rotate = False
         x = idekjnrise.randint(0, 5)
         y = idekjnrise.randint(0, 5)
         R = idekjnrise.randint(0, 1)
         if R == 1:
             rotate = True
-        helyes, pl2map = place(x, y, pl2map, rotate, ship_length, ship_number)
+        again, pl2map = place(x, y, pl2map, rotate, ship_length, ship_number)
     return pl2map
 
 
 # Full player turn
 def player_turn(pl_map, enemy_map):
-    helyes = True
-    while helyes:
+    again = True
+    while again:
         clear()
         print_out(pl_map, enemy_map)
         koord = input("Choose a target (in B-3 format): ")
-        x, y, helyes = inputcheck(koord)
-        if not helyes:
-            helyes, pl2map = shoot(x, y, enemy_map, True)
+        x, y, again = inputcheck(koord)
+        if not again:
+            again, pl2map = shoot(x, y, enemy_map, True)
     return enemy_map
 
 
 # generate the shooting pattern for hard ai
 def generate_hard_pattern():
-    helyes = True
+    again = True
     mechiteration = 0
     # Declare and generate one of the 2 possible shoot pattern
     rand11 = ["000", "040", "110", "150", "220", "330", "400", "440", "510", "550"]
@@ -313,10 +323,22 @@ def generate_hard_pattern():
     return crosshair
 
 
+# size input check
+def size_input():
+    global size
+    again = True
+    while again:
+        clear()
+        size = input("Map size(6 to 10): ")
+        if size < 10 and size > 6:
+            again = False
+
+
 def main():
-    global meret
-    pl1map = [["0" for x in range(meret)] for y in range(meret)]
-    pl2map = [["0" for x in range(meret)] for y in range(meret)]
+    global size
+    size_input
+    pl1map = [["0" for x in range(size)] for y in range(size)]
+    pl2map = [["0" for x in range(size)] for y in range(size)]
 
     playmode, difficulty = playmode_and_difficulty()
 
@@ -365,11 +387,11 @@ def main():
             print("\n \n \n \n \n         Player 1 won \n \n \n \n \n")
             break
         # Easy Computer turn
-        helyes = True
-        while helyes:
+        again = True
+        while again:
             x = idekjnrise.randint(0, 5)
             y = idekjnrise.randint(0, 5)
-            helyes, pl1map = shoot(x, y, pl1map, False)
+            again, pl1map = shoot(x, y, pl1map, False)
 
         win = check_win(pl1map)
         if win:
@@ -396,13 +418,13 @@ def main():
             break
         # Hard computer turn
         if len(talalat) == 0:
-            helyes = True
-            while helyes:
+            again = True
+            while again:
                 target = crosshair[mechiteration]
                 x = int(crosshair[mechiteration][0])
                 y = int(crosshair[mechiteration][1])
                 direction = crosshair[mechiteration][2]
-                helyes, pl1map = shoot(x, y, pl1map, False)
+                again, pl1map = shoot(x, y, pl1map, False)
                 if pl1map[y][x] in ["X"]:
                     talalat = itsahityarrharr(target, talalat, pl1map, direction)
                 mechiteration += 1
