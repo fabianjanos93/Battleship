@@ -1,22 +1,25 @@
 import random as idekjnrise
 # Generate boards
 meret = 6
-pl1map = [["0" for x in range(meret)] for y in range(meret)]
-pl2map = [["0" for x in range(meret)] for y in range(meret)]
+
+
+# Clear Terminal
+def clear():
+    print("\033[H\033[J")
 
 
 # clear terminal and a normal screen for player change
 def change_player(name):
-    input('End turn')
-    print("\033[H\033[J")
-    input('\n\n\n\n\n        '+name + '? \n\n\n')
-    print("\033[H\033[J")
+    input("End turn")
+    clear()
+    input("\n\n\n\n\n        "+name + "? \n\n\n")
+    clear()
 
 
 # write out the board state
 def print_out(pl_map, enemy_map):
-    print(' ', ["A", "B", "C", "D", "E", "F"], ' ' *
-          20, ' ', ["A", "B", "C", "D", "E", "F"])
+    print(" ", ["A", "B", "C", "D", "E", "F"], " " *
+          20, " ", ["A", "B", "C", "D", "E", "F"])
     for i in range(meret):
         rajz = str(i + 1) + " ["
         for j in range(meret - 1):
@@ -32,12 +35,12 @@ def print_out(pl_map, enemy_map):
             rajz += "'-']"
         else:
             rajz += "'0']"
-        print(i + 1, pl_map[i], ' ' * 20, rajz)
+        print(i + 1, pl_map[i], " " * 20, rajz)
 
 
 # write out only your board, for the ship placements
 def print_out_Create(pl_map):
-    print(' ', ["A", "B", "C", "D", "E", "F"])
+    print(" ", ["A", "B", "C", "D", "E", "F"])
     for i in range(meret):
         print(i + 1, pl_map[i])
 
@@ -49,21 +52,21 @@ def shoot(x, y, map, player):
     if target == "X" or target == "-":
         helyes = True
         if player:
-            print('You shot here before!')
+            print("You shot here before!")
     target = map[y][x]
-    if target in ['0', '-']:
-        map[y][x] = '-'
+    if target in ["0", "-"]:
+        map[y][x] = "-"
     else:
-        map[y][x] = 'X'
+        map[y][x] = "X"
         if player:
-            print('hit')
+            print("hit")
         out = True
         for i in range(meret):
             for j in range(meret):
                 if map[i][j] == target:
                     out = False
         if out and player:
-            print('Out!')
+            print("Out!")
     return helyes, map
 
 
@@ -76,20 +79,20 @@ def place(x, y, map, rotate, length, number):
                 if map[int(y) + int(i)][int(x)] == "0":
                     map[int(y) + int(i)][int(x)] = str(number)
                 else:
-                    print('rossz elhelyezés')
+                    print("rossz elhelyezés")
                     helyes = True
             else:
-                print('rossz elhelyezés')
+                print("rossz elhelyezés")
                 helyes = True
         else:
             if int(x) + int(i) < len(map):
                 if map[int(y)][int(x) + int(i)] == "0":
                     map[int(y)][int(x) + int(i)] = str(number)
                 else:
-                    print('rossz elhelyezés')
+                    print("rossz elhelyezés")
                     helyes = True
             else:
-                print('rossz elhelyezés')
+                print("rossz elhelyezés")
                 helyes = True
     if helyes:
         for i in range(len(map)):
@@ -161,45 +164,45 @@ def inputcheck(koord):
     return x, y, helyes
 
 
-# check the coord is in the table and, if it's a valid target for computer
+# check the coord is in the table and, if it"s a valid target for computer
 def isvalidkoord(x, y, map):
     if x in [0, 1, 2, 3, 4, 5] and y in [0, 1, 2, 3, 4, 5]:
-        if (map[y][x] not in ['X', '-']):
+        if (map[y][x] not in ["X", "-"]):
             return True
     return False
 
 
-# Hard AI 'cross shoot' component
+# Hard AI "cross shoot" component
 def itsahityarrharr(xy, arrayforstuff, map, direc):
     x = int(xy[0])
     y = int(xy[1])
     if isvalidkoord(x + 1, y, map) and str(x + 1) + str(y) + \
-            'r' not in arrayforstuff and direc in ['0', 'r']:
-        if map[x + 1][y] == 'X':
+            "r" not in arrayforstuff and direc in ["0", "r"]:
+        if map[x + 1][y] == "X":
             itsahityarrharr(str(x + 1) + str(y), arrayforstuff, map, direc)
         else:
-            arrayforstuff.append(str(x + 1) + str(y) + 'r')
+            arrayforstuff.append(str(x + 1) + str(y) + "r")
 
     if isvalidkoord(x - 1, y, map) and str(x - 1) + str(y) + \
-            'l' not in arrayforstuff and direc in ['0', 'l']:
-        if map[x + 1][y] == 'X':
+            "l" not in arrayforstuff and direc in ["0", "l"]:
+        if map[x + 1][y] == "X":
             itsahityarrharr(str(x - 1) + str(y), arrayforstuff, map, direc)
         else:
-            arrayforstuff.append(str(x - 1) + str(y) + 'l')
+            arrayforstuff.append(str(x - 1) + str(y) + "l")
 
     if isvalidkoord(x, y + 1, map) and str(x) + str(y + 1) + \
-            'd' not in arrayforstuff and direc in ['0', 'd']:
-        if map[x + 1][y] == 'X':
+            "d" not in arrayforstuff and direc in ["0", "d"]:
+        if map[x + 1][y] == "X":
             itsahityarrharr(str(x) + str(y + 1), arrayforstuff, map, direc)
         else:
-            arrayforstuff.append(str(x) + str(y + 1) + 'd')
+            arrayforstuff.append(str(x) + str(y + 1) + "d")
 
     if isvalidkoord(x, y - 1, map) and str(x) + str(y - 1) + \
-            'u' not in arrayforstuff and direc in ['0', 'u']:
-        if map[x + 1][y] == 'X':
+            "u" not in arrayforstuff and direc in ["0", "u"]:
+        if map[x + 1][y] == "X":
             itsahityarrharr(str(x) + str(y - 1), arrayforstuff, map, direc)
         else:
-            arrayforstuff.append(str(x) + str(y - 1) + 'u')
+            arrayforstuff.append(str(x) + str(y - 1) + "u")
 
     return arrayforstuff
 
@@ -217,13 +220,13 @@ def player_placement(pl_map):
 
 # Ask player for playmode(Multi or Solo) and Difficulti in case of Solo
 def playmode_and_difficulty():
-    difficulty = 'nope'
-    playmode = 'nope'
-    while playmode not in ['M', 'S', 'Multi', 'Solo']:
-        playmode = input('Choose a play mode ([S]olo/[M]ulti)')
-    if playmode in ['S', 'Solo']:
-        while difficulty not in ['H', 'E', 'Hard', 'Easy']:
-            difficulty = input('Choose a play mode ([E]asy/[H]ard)')
+    difficulty = "nope"
+    playmode = "nope"
+    while playmode not in ["M", "S", "Multi", "Solo"]:
+        playmode = input("Choose a play mode ([S]olo/[M]ulti)")
+    if playmode in ["S", "Solo"]:
+        while difficulty not in ["H", "E", "Hard", "Easy"]:
+            difficulty = input("Choose a play mode ([E]asy/[H]ard)")
     return playmode, difficulty
 
 
@@ -232,14 +235,9 @@ def check_win(enemy_map):
     win = True
     for i in range(meret):
         for j in range(meret):
-            if not enemy_map[i][j] == '0' and not enemy_map[i][j] == 'X' and not enemy_map[i][j] == '-':
+            if not enemy_map[i][j] == "0" and not enemy_map[i][j] == "X" and not enemy_map[i][j] == "-":
                 win = False
     return win
-
-
-# Clear Terminal
-def clear():
-    print("\033[H\033[J")
 
 
 # AI place randomly the ships
@@ -262,7 +260,7 @@ def player_turn(pl_map, enemy_map):
     while helyes:
         clear()
         print_out(pl_map, enemy_map)
-        koord = input('Choose a target (in B-3 format): ')
+        koord = input("Choose a target (in B-3 format): ")
         x, y, helyes = inputcheck(koord)
         if not helyes:
             helyes, pl2map = shoot(x, y, enemy_map, True)
@@ -274,10 +272,10 @@ def generate_hard_pattern():
     helyes = True
     mechiteration = 0
     # Declare and generate one of the 2 possible shoot pattern
-    rand11 = ['000', '040', '110', '150', '220', '330', '400', '440', '510', '550']
-    rand12 = ['020', '130', '200', '240', '310', '350', '420', '530']
-    rand21 = ['010', '050', '120', '230', '300', '340', '410', '450', '520']
-    rand22 = ['030', '100', '140', '210', '250', '320', '430', '500', '540']
+    rand11 = ["000", "040", "110", "150", "220", "330", "400", "440", "510", "550"]
+    rand12 = ["020", "130", "200", "240", "310", "350", "420", "530"]
+    rand21 = ["010", "050", "120", "230", "300", "340", "410", "450", "520"]
+    rand22 = ["030", "100", "140", "210", "250", "320", "430", "500", "540"]
     rand1 = []
     rand2 = []
     # Choose one of the 4
@@ -316,18 +314,22 @@ def generate_hard_pattern():
 
 
 def main():
+    global meret
+    pl1map = [["0" for x in range(meret)] for y in range(meret)]
+    pl2map = [["0" for x in range(meret)] for y in range(meret)]
+
     playmode, difficulty = playmode_and_difficulty()
 
     pl1map = player_placement(pl1map)
-    if playmode in ['M', 'Multi']:
-        change_player('Player 2')
+    if playmode in ["M", "Multi"]:
+        change_player("Player 2")
 
         pl2map = player_placement(pl2map)
 
-        change_player('Player 1')
+        change_player("Player 1")
 
     game = True
-    while game and playmode in ['M', 'Multi']:
+    while game and playmode in ["M", "Multi"]:
         # First Player
         pl2map = player_turn(pl1map, pl2map)
         win = check_win(pl2map)
@@ -336,7 +338,7 @@ def main():
             print("\n \n \n \n \n         Player 1 won \n \n \n \n \n")
             break
         # Secound player
-        change_player('Player 2')
+        change_player("Player 2")
         pl1map = player_turn(pl2map, pl1map)
         win = check_win(pl1map)
         if win:
@@ -344,17 +346,17 @@ def main():
             print("\n \n \n \n \n         Player 2 won \n \n \n \n \n")
             break
 
-        change_player('Player 1')
+        change_player("Player 1")
 
     # Computer ship generate part
-    if playmode in ['S', 'Solo']:
+    if playmode in ["S", "Solo"]:
         pl2map = ai_placement(pl2map, 4, 1)
         pl2map = ai_placement(pl2map, 3, 2)
         pl2map = ai_placement(pl2map, 2, 3)
         pl2map = ai_placement(pl2map, 2, 4)
 
     # Easy computer game part
-    while game and difficulty in ['E', 'Easy']:
+    while game and difficulty in ["E", "Easy"]:
         # Player Turn
         pl2map = player_turn(pl1map, pl2map)
         win = check_win(pl2map)
@@ -378,13 +380,13 @@ def main():
         clear()
 
     # Hard computer generate part
-    if difficulty in ['H', 'Hard']:
+    if difficulty in ["H", "Hard"]:
         crosshair = generate_hard_pattern()
         mechiteration = 0
         talalat = []
 
     # Hard computer game part
-    while game and difficulty in ['H', 'Hard']:
+    while game and difficulty in ["H", "Hard"]:
         # Player turn
         pl2map = player_turn(pl1map, pl2map)
         win = check_win(pl2map)
@@ -401,7 +403,7 @@ def main():
                 y = int(crosshair[mechiteration][1])
                 direction = crosshair[mechiteration][2]
                 helyes, pl1map = shoot(x, y, pl1map, False)
-                if pl1map[y][x] in ['X']:
+                if pl1map[y][x] in ["X"]:
                     talalat = itsahityarrharr(target, talalat, pl1map, direction)
                 mechiteration += 1
         else:
@@ -410,7 +412,7 @@ def main():
             y = int(talalat[0][0])
             direction = talalat[0][2]
             shoot(y, x, pl1map, False)
-            if pl1map[x][y] in ['X']:
+            if pl1map[x][y] in ["X"]:
                 talalat = itsahityarrharr(target, talalat, pl1map, direction)
             talalat.remove(target)
 
