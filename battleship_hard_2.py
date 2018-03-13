@@ -16,6 +16,16 @@ def change_player(name):
     clear()
 
 
+# first line creat
+def first_line():
+    global meret
+    abc = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+    first_line_return = ""
+    for i in range(meret):
+        first_line_return += abc[i] + " "
+    return first_line_return
+
+
 # write out the board state
 def print_out(pl_map, enemy_map):
     print(" ", ["A", "B", "C", "D", "E", "F"], " " *
