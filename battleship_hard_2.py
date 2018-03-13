@@ -18,33 +18,38 @@ def change_player(name):
 
 # first line creat
 def first_line():
-    global meret
-    abc = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+    global size
+    abc = ["A ", "B ", "C ", "D ", "E ", "F ", "G ", "H ", "I ", "J "]
     first_line_return = ""
-    for i in range(meret):
+    for i in range(size):
         first_line_return += abc[i] + " "
     return first_line_return
 
 
 # write out the board state
 def print_out(pl_map, enemy_map):
-    print(" ", ["A", "B", "C", "D", "E", "F"], " " *
-          20, " ", ["A", "B", "C", "D", "E", "F"])
+    red = "\033[1;30;41m"
+    white = "\033[1;30;47Sm"
+    blue = "\033[1;30;44m"
+    cyan = "\033[1;30;46m"
+    disable = "\033[0m"
+    print(" ", first_line(), " " *
+          20, " ", first_line)
     for i in range(size):
         rajz = str(i + 1) + " ["
         for j in range(size - 1):
             if enemy_map[i][j] == "X":
-                rajz += "'X', "
+                rajz += "{}   ".format(red)
             elif enemy_map[i][j] == "-":
-                rajz += "'-', "
+                rajz += "{}   ".format(blue)
             else:
-                rajz += "'0', "
+                rajz += "{}   ".format(white)
         if enemy_map[i][size-1] == "X":
-            rajz += "'X']"
+            rajz += "{}   {}".format(red, disable)
         elif enemy_map[i][size-1] == "-":
-            rajz += "'-']"
+            rajz += "{}   {}".format(white, disable)
         else:
-            rajz += "'0']"
+            rajz += "{}   {}".format(white, disable)
         print(i + 1, pl_map[i], " " * 20, rajz)
 
 
@@ -89,20 +94,20 @@ def place(x, y, map, rotate, length, number):
                 if map[int(y) + int(i)][int(x)] == "0":
                     map[int(y) + int(i)][int(x)] = str(number)
                 else:
-                    print("rossz elhelyezés")
+                    print("wrong placement")
                     again = True
             else:
-                print("rossz elhelyezés")
+                print("wrong placement")
                 again = True
         else:
             if int(x) + int(i) < len(map):
                 if map[int(y)][int(x) + int(i)] == "0":
                     map[int(y)][int(x) + int(i)] = str(number)
                 else:
-                    print("rossz elhelyezés")
+                    print("wrong placement")
                     again = True
             else:
-                print("rossz elhelyezés")
+                print("wrong placement")
                 again = True
     if again:
         for i in range(len(map)):
