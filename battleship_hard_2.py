@@ -29,28 +29,28 @@ def first_line():
 # write out the board state
 def print_out(pl_map, enemy_map):
     red = "\033[1;30;41m"
-    white = "\033[1;30;47Sm"
+    white = "\033[1;30;47m"
     blue = "\033[1;30;44m"
     cyan = "\033[1;30;46m"
     disable = "\033[0m"
     print(" ", first_line(), " " *
-          20, " ", first_line)
+          20, " ", first_line())
     for i in range(size):
-        rajz = str(i + 1) + " ["
+        enemy_line = str(i + 1) + " "
         for j in range(size - 1):
             if enemy_map[i][j] == "X":
-                rajz += "{}   ".format(red)
+                enemy_line += "{}   ".format(red)
             elif enemy_map[i][j] == "-":
-                rajz += "{}   ".format(blue)
+                enemy_line += "{}   ".format(blue)
             else:
-                rajz += "{}   ".format(white)
+                enemy_line += "{}   ".format(white)
         if enemy_map[i][size-1] == "X":
-            rajz += "{}   {}".format(red, disable)
+            enemy_line += "{}   {}".format(red, disable)
         elif enemy_map[i][size-1] == "-":
-            rajz += "{}   {}".format(white, disable)
+            enemy_line += "{}   {}".format(blue, disable)
         else:
-            rajz += "{}   {}".format(white, disable)
-        print(i + 1, pl_map[i], " " * 20, rajz)
+            enemy_line += "{}   {}".format(white, disable)
+        print(i + 1, pl_map[i], " " * 20, enemy_line)
 
 
 # write out only your board, for the ship placements
