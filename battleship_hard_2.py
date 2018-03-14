@@ -1,4 +1,6 @@
 import random as idekjnrise
+import sys
+import time
 # Generate boards
 size = 6
 
@@ -19,10 +21,10 @@ def change_player(name):
 # first line creat
 def first_line():
     global size
-    abc = ["A ", "B ", "C ", "D ", "E ", "F ", "G ", "H ", "I ", "J "]
-    first_line_return = ""
+    abc = [" A ", " B ", " C ", " D ", " E ", " F ", " G ", " H ", " I ", " J "]
+    first_line_return = "  "
     for i in range(size):
-        first_line_return += abc[i] + " "
+        first_line_return += abc[i]
     return first_line_return
 
 
@@ -32,11 +34,32 @@ def print_out(pl_map, enemy_map):
     white = "\033[1;30;47m"
     blue = "\033[1;30;44m"
     cyan = "\033[1;30;46m"
+    yellow = "\033[1;30;43m"
     disable = "\033[0m"
     print(" ", first_line(), " " *
           20, " ", first_line())
     for i in range(size):
-        enemy_line = str(i + 1) + " "
+        enemy_line = ""
+        pl_line = ""
+
+        for j in range(size - 1):
+            if pl_map[i][j] == "X":
+                pl_line += "{}   ".format(red)
+            elif pl_map[i][j] == "-":
+                pl_line += "{}   ".format(cyan)
+            elif pl_map[i][j] == "0":
+                pl_line += "{}   ".format(blue)
+            else:
+                pl_line += "{}   ".format(yellow)
+        if pl_map[i][size-1] == "X":
+            pl_line += "{}   {}".format(red, disable)
+        elif pl_map[i][size-1] == "-":
+            pl_line += "{}   {}".format(cyan, disable)
+        elif pl_map[i][size-1] == "0":
+            pl_line += "{}   {}".format(blue, disable)
+        else:
+            pl_line += "{}   {}".format(yellow, disable)
+
         for j in range(size - 1):
             if enemy_map[i][j] == "X":
                 enemy_line += "{}   ".format(red)
@@ -50,7 +73,7 @@ def print_out(pl_map, enemy_map):
             enemy_line += "{}   {}".format(blue, disable)
         else:
             enemy_line += "{}   {}".format(white, disable)
-        print(i + 1, pl_map[i], " " * 20, enemy_line)
+        print("{:>2} ".format(i + 1), pl_line, " " * 20, "{:>2} ".format(i + 1), enemy_line)
 
 
 # write out only your board, for the ship placements
@@ -150,7 +173,9 @@ def place_player(length, map, number):
 def inputcheck(koord):
     global size
     again = False
-    if len(koord) == 3 and "-" in koord:
+    if koord == "EXIT":
+        sys.exit
+    try:
         x, y = koord.split("-")
         if x in ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]:
             if x == "A":
@@ -181,10 +206,10 @@ def inputcheck(koord):
         else:
             x, y = 11, 11
             again = True
-    else:
+        if x > size-1 or y > size-1:
+            again = True
+    except(ValueError, TypeError, NameError):
         x, y = 11, 11
-        again = True
-    if x > size or y > size:
         again = True
     return x, y, again
 
@@ -192,7 +217,14 @@ def inputcheck(koord):
 # check the coord is in the table and, if it"s a valid target for computer
 def isvalidkoord(x, y, map):
     if x in range(size) and y in range(size):
-        if (map[y][x] not in ["X", "-"]):
+        if (map[y][x] not in ["-", "X"]):
+            return True
+    return False
+
+
+def is_valid_to_continue(x, y, map):
+    if x in range(size) and y in range(size):
+        if (map[y][x] not in ["-"]):
             return True
     return False
 
@@ -201,33 +233,29 @@ def isvalidkoord(x, y, map):
 def itsahityarrharr(xy, arrayforstuff, map, direc):
     x = int(xy[0])
     y = int(xy[1])
-    if isvalidkoord(x + 1, y, map) and str(x + 1) + str(y) + \
-            "r" not in arrayforstuff and direc in ["0", "r"]:
-        if map[x + 1][y] == "X":
-            itsahityarrharr(str(x + 1) + str(y), arrayforstuff, map, direc)
-        else:
-            arrayforstuff.append(str(x + 1) + str(y) + "r")
+    right = str(x + 1) + str(y) + "r"
+    left = str(x - 1) + str(y) + "l"
+    down = str(x) + str(y + 1) + "d"
+    up = str(x) + str(y - 1) + "u"
+    if isvalidkoord(x + 1, y, map) and right not in arrayforstuff and direc in ["0", "r"]:
+        arrayforstuff.append(right)
+    elif is_valid_to_continue(x + 1, y, map) and right not in arrayforstuff and direc in ["0", "r"]:
+        itsahityarrharr(str(x + 1) + str(y), arrayforstuff, map, "r")
 
-    if isvalidkoord(x - 1, y, map) and str(x - 1) + str(y) + \
-            "l" not in arrayforstuff and direc in ["0", "l"]:
-        if map[x + 1][y] == "X":
-            itsahityarrharr(str(x - 1) + str(y), arrayforstuff, map, direc)
-        else:
-            arrayforstuff.append(str(x - 1) + str(y) + "l")
+    if isvalidkoord(x - 1, y, map) and left not in arrayforstuff and direc in ["0", "l"]:
+        arrayforstuff.append(left)
+    elif is_valid_to_continue(x - 1, y, map) and left not in arrayforstuff and direc in ["0", "l"]:
+        itsahityarrharr(str(x - 1) + str(y), arrayforstuff, map, "l")
 
-    if isvalidkoord(x, y + 1, map) and str(x) + str(y + 1) + \
-            "d" not in arrayforstuff and direc in ["0", "d"]:
-        if map[x + 1][y] == "X":
-            itsahityarrharr(str(x) + str(y + 1), arrayforstuff, map, direc)
-        else:
-            arrayforstuff.append(str(x) + str(y + 1) + "d")
+    if isvalidkoord(x, y + 1, map) and down not in arrayforstuff and direc in ["0", "d"]:
+        arrayforstuff.append(down)
+    elif is_valid_to_continue(x, y + 1, map) and down not in arrayforstuff and direc in ["0", "d"]:
+        itsahityarrharr(str(x) + str(y + 1), arrayforstuff, map, "d")
 
-    if isvalidkoord(x, y - 1, map) and str(x) + str(y - 1) + \
-            "u" not in arrayforstuff and direc in ["0", "u"]:
-        if map[x + 1][y] == "X":
-            itsahityarrharr(str(x) + str(y - 1), arrayforstuff, map, direc)
-        else:
-            arrayforstuff.append(str(x) + str(y - 1) + "u")
+    if isvalidkoord(x, y - 1, map) and up not in arrayforstuff and direc in ["0", "u"]:
+        arrayforstuff.append(up)
+    elif is_valid_to_continue(x, y - 1, map)and up not in arrayforstuff and direc in ["0", "u"]:
+        itsahityarrharr(str(x) + str(y - 1), arrayforstuff, map, "u")
 
     return arrayforstuff
 
@@ -247,12 +275,20 @@ def player_placement(pl_map):
 def playmode_and_difficulty():
     difficulty = "nope"
     playmode = "nope"
+    streak_option = False
     while playmode not in ["M", "S", "Multi", "Solo"]:
         playmode = input("Choose a play mode ([S]olo/[M]ulti)")
     if playmode in ["S", "Solo"]:
         while difficulty not in ["H", "E", "Hard", "Easy"]:
+            name1 = input("Enter your name: ")
+            name2 = "SkyNet"
             difficulty = input("Choose a play mode ([E]asy/[H]ard)")
-    return playmode, difficulty
+    else:
+        name1 = input("Enter First player name: ")
+        name2 = input("Enter Second player name: ")
+    if input("Streak(Y/N): ") in ["Y", "y", "yes", "YES"]:
+        streak_option = True
+    return playmode, difficulty, streak_option, name1, name2
 
 
 # Check if player winned
@@ -281,7 +317,8 @@ def ai_placement(pl2map, ship_length, ship_number):
 
 
 # Full player turn
-def player_turn(pl_map, enemy_map):
+def player_turn(pl_map, enemy_map, name):
+    global streak
     again = True
     while again:
         clear()
@@ -289,7 +326,16 @@ def player_turn(pl_map, enemy_map):
         koord = input("Choose a target (in B-3 format): ")
         x, y, again = inputcheck(koord)
         if not again:
-            again, pl2map = shoot(x, y, enemy_map, True)
+            again, enemy_map = shoot(x, y, enemy_map, True)
+            if streak and enemy_map[y][x] == "X" and not again:
+                if check_win(enemy_map):
+                    clear()
+                    print("\n \n \n \n \n        {}  \n \n \n \n \n".format(name))
+                    sys.exit
+                else:
+                    enemy_map = player_turn(pl_map, enemy_map, name)
+        clear()
+        print_out(pl_map, enemy_map)
     return enemy_map
 
 
@@ -297,16 +343,18 @@ def player_turn(pl_map, enemy_map):
 def generate_hard_positions(x):
     f = 0
     s = x
-    wannebe_filled_up_array = []
+    global size
+    wannabe_filled_up_array = []
     while f < size:
         if s < size:
-            s += 4
             wannabe_filled_up_array.append(str(f)+str(s)+"0")
+            s += 4
         else:
             x += 1
             s = (x % 4)
             f += 1
-            wannabe_filled_up_array.append(str(f)+str(s)+"0")
+            if f < size:
+                wannabe_filled_up_array.append(str(f)+str(s)+"0")
     return wannabe_filled_up_array
 
 
@@ -376,36 +424,36 @@ def main():
     size_input()
     pl1map = [["0" for x in range(size)] for y in range(size)]
     pl2map = [["0" for x in range(size)] for y in range(size)]
-
-    playmode, difficulty = playmode_and_difficulty()
+    global streak
+    playmode, difficulty, streak, player1, player2 = playmode_and_difficulty()
 
     pl1map = player_placement(pl1map)
     if playmode in ["M", "Multi"]:
-        change_player("Player 2")
+        change_player(player2)
 
         pl2map = player_placement(pl2map)
 
-        change_player("Player 1")
+        change_player(player1)
 
     game = True
     while game and playmode in ["M", "Multi"]:
         # First Player
-        pl2map = player_turn(pl1map, pl2map)
+        pl2map = player_turn(pl1map, pl2map, player1)
         win = check_win(pl2map)
         if win:
             clear()
-            print("\n \n \n \n \n         Player 1 won \n \n \n \n \n")
+            print("\n \n \n \n \n         {} won \n \n \n \n \n".format(player1))
             break
-        # Secound player
-        change_player("Player 2")
-        pl1map = player_turn(pl2map, pl1map)
+        # Second player
+        change_player(player2)
+        pl1map = player_turn(pl2map, pl1map, player2)
         win = check_win(pl1map)
         if win:
             clear()
-            print("\n \n \n \n \n         Player 2 won \n \n \n \n \n")
+            print("\n \n \n \n \n         {} won \n \n \n \n \n".format(player2))
             break
 
-        change_player("Player 1")
+        change_player(player1)
 
     # Computer ship generate part
     if playmode in ["S", "Solo"]:
@@ -417,11 +465,11 @@ def main():
     # Easy computer game part
     while game and difficulty in ["E", "Easy"]:
         # Player Turn
-        pl2map = player_turn(pl1map, pl2map)
+        pl2map = player_turn(pl1map, pl2map, )
         win = check_win(pl2map)
         if win:
             clear()
-            print("\n \n \n \n \n         Player 1 won \n \n \n \n \n")
+            print("\n \n \n \n \n         {} won \n \n \n \n \n".format(player1))
             break
         # Easy Computer turn
         again = True
@@ -433,7 +481,7 @@ def main():
         win = check_win(pl1map)
         if win:
             clear()
-            print("\n \n \n \n \n         Computer won \n \n \n \n \n")
+            print("\n \n \n \n \n         {} won \n \n \n \n \n".format(player2))
             break
 
         clear()
@@ -447,39 +495,58 @@ def main():
     # Hard computer game part
     while game and difficulty in ["H", "Hard"]:
         # Player turn
-        pl2map = player_turn(pl1map, pl2map)
+        pl2map = player_turn(pl1map, pl2map, player1)
         win = check_win(pl2map)
         if win:
             clear()
-            print("\n \n \n \n \n         Player 1 won \n \n \n \n \n")
+            print("\n \n \n \n \n         {} won \n \n \n \n \n".format(player1))
             break
-        # Hard computer turn
-        if len(talalat) == 0:
-            again = True
-            while again:
-                target = crosshair[mechiteration]
-                x = int(crosshair[mechiteration][0])
-                y = int(crosshair[mechiteration][1])
-                direction = crosshair[mechiteration][2]
-                again, pl1map = shoot(x, y, pl1map, False)
-                if pl1map[y][x] in ["X"]:
-                    talalat = itsahityarrharr(target, talalat, pl1map, direction)
-                mechiteration += 1
-        else:
-            target = talalat[0]
-            x = int(talalat[0][1])
-            y = int(talalat[0][0])
-            direction = talalat[0][2]
-            shoot(y, x, pl1map, False)
-            if pl1map[x][y] in ["X"]:
-                talalat = itsahityarrharr(target, talalat, pl1map, direction)
-            talalat.remove(target)
 
+        # Hard computer turn
+        def hard_comp_turn(talalat, mechiteration, crosshair, pl1map):
+            if len(talalat) == 0:
+                again = True
+                while again:
+                    target = crosshair[mechiteration]
+                    x = int(crosshair[mechiteration][0])
+                    y = int(crosshair[mechiteration][1])
+                    direction = crosshair[mechiteration][2]
+                    mechiteration += 1
+                    again, pl1map = shoot(x, y, pl1map, False)
+                    if pl1map[y][x] in ["X"]:
+                        talalat = itsahityarrharr(target, talalat, pl1map, direction)
+                        if streak:
+                            clear()
+                            print_out(pl1map, pl2map)
+                            time.sleep(0.5)
+                            talalat, mechiteration, crosshair, pl1map = hard_comp_turn(talalat, mechiteration,
+                                                                                       crosshair, pl1map)
+                            return talalat, mechiteration, crosshair, pl1map
+            else:
+                target = talalat[0]
+                x = int(talalat[0][1])
+                y = int(talalat[0][0])
+                direction = talalat[0][2]
+                talalat.remove(target)
+                again, pl1map = shoot(y, x, pl1map, False)
+                if pl1map[x][y] not in ["-"] and not again:
+                    talalat = itsahityarrharr(target, talalat, pl1map, direction)
+                    if streak:
+                        clear()
+                        print_out(pl1map, pl2map)
+                        time.sleep(0.5)
+                        talalat, mechiteration, crosshair, pl1map = hard_comp_turn(talalat, mechiteration,
+                                                                                   crosshair, pl1map)
+                        return talalat, mechiteration, crosshair, pl1map
+            return talalat, mechiteration, crosshair, pl1map
+
+        talalat, mechiteration, crosshair, pl1map = hard_comp_turn(talalat, mechiteration, crosshair, pl1map)
         win = check_win(pl1map)
         if win:
             clear()
-            print("\n \n \n \n \n         Computer won \n \n \n \n \n")
+            print("\n \n \n \n \n         {} always win \n \n \n \n \n".format(player2))
             break
+        time.sleep(1)
 
 
 main()
