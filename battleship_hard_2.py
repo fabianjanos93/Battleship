@@ -78,9 +78,34 @@ def print_out(pl_map, enemy_map):
 
 # write out only your board, for the ship placements
 def print_out_Create(pl_map):
-    print(" ", ["A", "B", "C", "D", "E", "F"])
+    print(" ", first_line())
+    red = "\033[1;30;41m"
+    white = "\033[1;30;47m"
+    blue = "\033[1;30;44m"
+    cyan = "\033[1;30;46m"
+    yellow = "\033[1;30;43m"
+    disable = "\033[0m"
     for i in range(size):
-        print(i + 1, pl_map[i])
+        enemy_line = ""
+        pl_line = ""
+        for j in range(size - 1):
+            if pl_map[i][j] == "X":
+                pl_line += "{}   ".format(red)
+            elif pl_map[i][j] == "-":
+                pl_line += "{}   ".format(cyan)
+            elif pl_map[i][j] == "0":
+                pl_line += "{}   ".format(blue)
+            else:
+                pl_line += "{}   ".format(yellow)
+        if pl_map[i][size-1] == "X":
+            pl_line += "{}   {}".format(red, disable)
+        elif pl_map[i][size-1] == "-":
+            pl_line += "{}   {}".format(cyan, disable)
+        elif pl_map[i][size-1] == "0":
+            pl_line += "{}   {}".format(blue, disable)
+        else:
+            pl_line += "{}   {}".format(yellow, disable)
+        print("{:>2} ".format(i + 1), pl_line)
 
 
 # shoot to the x-y coordinates and return with the table and the boolean if it duable
@@ -465,18 +490,33 @@ def main():
     # Easy computer game part
     while game and difficulty in ["E", "Easy"]:
         # Player Turn
-        pl2map = player_turn(pl1map, pl2map, )
+        pl2map = player_turn(pl1map, pl2map, player1)
         win = check_win(pl2map)
         if win:
             clear()
             print("\n \n \n \n \n         {} won \n \n \n \n \n".format(player1))
             break
         # Easy Computer turn
-        again = True
-        while again:
-            x = idekjnrise.randint(0, size-1)
-            y = idekjnrise.randint(0, size-1)
-            again, pl1map = shoot(x, y, pl1map, False)
+
+        def easy_turn(pl1map):
+            again = True
+            time.sleep(0.5)
+            while again:
+                x = idekjnrise.randint(0, size-1)
+                y = idekjnrise.randint(0, size-1)
+                again, pl1map = shoot(x, y, pl1map, False)
+                if streak and pl1map[y][x] == "X" and not again:
+                    if check_win(pl1map):
+                        clear()
+                        print("\n \n \n \n \n        {}  \n \n \n \n \n".format(name))
+                        sys.exit
+                    else:
+                        clear()
+                        print_out(pl1map, pl2map)
+                        pl1map = easy_turn(pl1map)
+            return pl1map
+
+        pl1map = easy_turn(pl1map)
 
         win = check_win(pl1map)
         if win:
@@ -504,6 +544,7 @@ def main():
 
         # Hard computer turn
         def hard_comp_turn(talalat, mechiteration, crosshair, pl1map):
+            time.sleep(0.5)
             if len(talalat) == 0:
                 again = True
                 while again:
@@ -518,7 +559,6 @@ def main():
                         if streak:
                             clear()
                             print_out(pl1map, pl2map)
-                            time.sleep(0.5)
                             talalat, mechiteration, crosshair, pl1map = hard_comp_turn(talalat, mechiteration,
                                                                                        crosshair, pl1map)
                             return talalat, mechiteration, crosshair, pl1map
@@ -534,7 +574,6 @@ def main():
                     if streak:
                         clear()
                         print_out(pl1map, pl2map)
-                        time.sleep(0.5)
                         talalat, mechiteration, crosshair, pl1map = hard_comp_turn(talalat, mechiteration,
                                                                                    crosshair, pl1map)
                         return talalat, mechiteration, crosshair, pl1map
